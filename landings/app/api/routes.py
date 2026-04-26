@@ -18,6 +18,47 @@ router = APIRouter()
     response_model=LeadAcceptedResponse,
     status_code=status.HTTP_200_OK,
     summary="Accept lead from landing page",
+    description=(
+        "Accepts a lead from a landing page, validates affiliate ownership "
+        "using Bearer JWT token, checks that the offer exists and pushes "
+        "the lead payload to Redis queue for background processing."
+    ),
+    responses={
+        200: {
+            "description": "Lead accepted and pushed to Redis queue",
+            "content": {
+                "application/json": {
+                    "example": {"status": "accepted"}
+                }
+            },
+        },
+        400: {
+            "description": "Invalid request data or offer does not exist",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Offer does not exist"}
+                }
+            },
+        },
+        401: {
+            "description": "Invalid or missing Bearer token",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Invalid authentication token"}
+                }
+            },
+        },
+        403: {
+            "description": "affiliate_id does not match token affiliate id",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "affiliate_id does not match token affiliate id"
+                    }
+                }
+            },
+        },
+    },
 )
 async def create_lead(
     lead: LeadCreate,

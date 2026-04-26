@@ -17,6 +17,61 @@ router = APIRouter()
     "/leads",
     response_model=LeadsAnalyticsResponse,
     summary="Get affiliate leads analytics",
+    description=(
+        "Returns leads analytics for the authenticated affiliate. "
+        "Affiliate is resolved from Bearer JWT token. "
+        "Results can be grouped by date or offer and filtered by lead creation date."
+    ),
+    responses={
+        200: {
+            "description": "Leads analytics successfully returned",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "group_by": "date",
+                        "items": [
+                            {
+                                "group": "2026-04-24",
+                                "count": 1,
+                                "leads": [
+                                    {
+                                        "id": 1,
+                                        "name": "Oleksii",
+                                        "phone": "+380982342123",
+                                        "country": "UA",
+                                        "offer_id": 1,
+                                        "affiliate_id": 1,
+                                        "created_at": "2026-04-24T21:21:17.503491Z",
+                                    }
+                                ],
+                            }
+                        ],
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Invalid date range",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "date_from must be less than or equal to date_to"
+                    }
+                }
+            },
+        },
+        401: {
+            "description": "Invalid or missing Bearer token",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Invalid authentication token"}
+                }
+            },
+        },
+        422: {
+            "description": "Validation error for query parameters",
+        },
+    },
 )
 async def get_leads(
     current_affiliate: Annotated[Affiliate, Depends(get_current_affiliate)],
